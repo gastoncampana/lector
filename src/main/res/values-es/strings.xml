@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="service_description">Lee la pantalla en voz alta. Usá su acceso directo (por ejemplo, mantener presionadas ambas teclas de volumen), tocá el texto desde donde querés empezar y lo lee hasta el final, resaltando cada parte. Tocá de nuevo, o usá el acceso directo, para parar.\n\nHabla con la voz de texto a voz del teléfono y no tiene acceso a la red: nada de lo que hay en tu pantalla sale del teléfono.</string>
+    <string name="no_text">No hay texto para leer en esta pantalla</string>
+    <string name="no_voice">La voz de texto a voz todavía no está lista</string>
+</resources>

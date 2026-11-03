@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">Lector</string>
+    <string name="service_description">Reads the screen aloud. Press its shortcut (for example, holding both volume keys), tap the text to start from, and it reads from there to the end, highlighting each part as it goes. Tap again, or press the shortcut, to stop.\n\nIt speaks with your phone\'s text-to-speech voice, and it has no network access: nothing on your screen leaves the phone.</string>
+    <string name="no_text">No text to read on this screen</string>
+    <string name="no_voice">The text-to-speech voice isn\'t ready yet</string>
+</resources>
