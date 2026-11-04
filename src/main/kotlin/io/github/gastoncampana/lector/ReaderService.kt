@@ -140,7 +140,7 @@ class ReaderService : AccessibilityService() {
 }
 
 /** Where a node sits, as far as reading goes: what holds it decides whether its text is read. */
-private enum class Place { TEXT, HEADING, LINK, CONTROL }
+private enum class Place { TEXT, HEADING, LINK, SUPERSCRIPT, CONTROL }
 
 // Native controls; their text is a label, not something to read.
 private val controls = setOf(
@@ -151,8 +151,8 @@ private val controls = setOf(
 /**
  * Adds the visible text under [node] to [into], in the app's own order. A node with text stands for its whole subtree.
  * Controls are left out: buttons, text fields (a browser's address bar), and in a web page (Chrome names each node's
- * role) footnote marks too. Text inside a link is marked as such, unless a heading holds the link, as a news site's
- * headlines.
+ * role) footnote marks too, links in a superscript; the rest of a superscript is read, as the 2 of km². Text inside a
+ * link is marked as such, unless a heading holds the link, as a news site's headlines.
  * ponytail: text only, no contentDescription, so images and icon-only buttons stay silent; add it if they are missed.
  */
 private fun collect(
@@ -166,14 +166,18 @@ private fun collect(
     val role = node.extras.getString("AccessibilityNodeInfo.chromeRole")
     val here = when {
         context == Place.CONTROL -> context
-        node.className in controls || node.isEditable || role == "button" || role == "superscript" -> Place.CONTROL
+        node.className in controls || node.isEditable || role == "button" -> Place.CONTROL
+        role == "link" && context == Place.SUPERSCRIPT -> Place.CONTROL
+        role == "superscript" -> Place.SUPERSCRIPT
         role == "heading" -> Place.HEADING
         role == "link" && context != Place.HEADING -> Place.LINK
         else -> context
     }
     if (here == Place.CONTROL) return
     val text = if (node.isPassword) "" else node.text?.toString()?.trim().orEmpty()
+    // Also footnote matter: the page after a mark (Wikipedia's ":12") and the brackets around a "citation needed".
     if (text.isNotEmpty()) {
+        if (here == Place.SUPERSCRIPT && (text.startsWith(":") || text.none(Char::isLetterOrDigit))) return
         val bounds = Rect().also(node::getBoundsInScreen)
         into += Block(
             text, bounds.left, bounds.top, bounds.right, bounds.bottom, parent, grandparent, here == Place.LINK,
