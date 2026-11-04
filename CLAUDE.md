@@ -47,19 +47,19 @@ build from source, and `scripts/release.sh` refuses to ship that build.
   calls `invoke([F)Ljava/lang/Integer;`, which `proguard-rules.pro` keeps.
 - `ReaderService.kt`: `ReaderService`, the accessibility service. `flagRequestAccessibilityButton` in
   `res/xml/reader_service.xml` makes its shortcut call `onClicked` (`toggle`) instead of turning the service off. It
-  asks for no events: `collect` walks `rootInActiveWindow` only when the shortcut is pressed, and a node with text stands
-  for its subtree. It skips controls (buttons, text fields such as a browser's address bar, and in Chrome, whose roles
-  come in `extras` as `AccessibilityNodeInfo.chromeRole`, buttons and footnote marks) and marks link text unless a
-  heading holds it, for `readable`. `ReaderView` is a `TYPE_ACCESSIBILITY_OVERLAY` window over the whole screen: outlines until a tap
-  picks a block, then fills the run being read; the end of the reading closes it. It keeps the screen on: Android
-  binds accessibility services as foreground only while the screen is on, so with it off the service's audio is muted
-  (`muted ... source:opControlAudio` in `dumpsys audio`) and its threads drop to the `restricted` cpuset, the little
-  cores. Chrome stops building a page's
-  tree while nothing reads it, so `toggle` looks again 500 ms after opening and takes the longer list.
-  Picked in the chooser Android shows when several services share the shortcut, `onClicked` runs while the chooser is
-  still the active window, so `toggle` looks again once, 500 ms later, when it finds no text or an `android` window.
-  Messages go through `notice` (an accessibility overlay), never a Toast: Android drops a background app's toasts while
-  it may not post notifications, and the app asks for no permissions.
+  asks for no events: `collect` walks `rootInActiveWindow` only when the shortcut is pressed, and a node with text
+  stands for its subtree. It skips controls (buttons, text fields such as a browser's address bar, and in Chrome, whose
+  roles come in `extras` as `AccessibilityNodeInfo.chromeRole`, buttons and footnote marks: links in a superscript, and
+  its page numbers and brackets) and marks link text unless a heading holds it, for `readable`. `ReaderView` is a
+  `TYPE_ACCESSIBILITY_OVERLAY` window over the whole screen: outlines until a tap picks a block, then fills the run
+  being read; the end of the reading closes it. It keeps the screen on: Android binds accessibility services as
+  foreground only while the screen is on, so with it off the service's audio is muted (`muted ... source:opControlAudio`
+  in `dumpsys audio`) and its threads drop to the `restricted` cpuset, the little cores. Chrome stops building a page's
+  tree while nothing reads it, so `toggle` looks again 500 ms after opening and takes the longer list. Picked in the
+  chooser Android shows when several services share the shortcut, `onClicked` runs while the chooser is still the active
+  window, so `toggle` looks again once, 500 ms later, when it finds no text or an `android` window. Messages go through
+  `notice` (an accessibility overlay), never a Toast: Android drops a background app's toasts while it may not post
+  notifications, and the app asks for no permissions.
 - `SettingsActivity.kt`: the app icon. A voice per language (tapping one plays a sample) and the speed; until the
   shortcut is on (Android enables the service exactly when a shortcut targets it), a card that opens Accessibility
   settings.

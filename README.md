@@ -28,8 +28,9 @@ The app is available in English and Spanish.
 
 ## Install
 
-1. Download `lector-<version>.apk` from the latest release. It is big, about 390 MB, because it carries the voice.
-   It runs on 64-bit ARM phones, as nearly all recent ones are, not on 32-bit or x86 devices.
+1. Download `lector-<version>.apk` from the [latest release](https://github.com/gastoncampana/lector/releases/latest).
+   It is big, about 390 MB, because it carries the voice. It runs on 64-bit ARM phones, as nearly all recent ones are,
+   not on 32-bit or x86 devices.
 2. Open it on the phone and allow installs from that app when Android asks. Play Protect may warn you, because the app
    does not come from Google Play.
 3. Open Lector and tap **Open Accessibility settings**. Find Lector there, turn on its shortcut and pick how to
@@ -77,8 +78,9 @@ An accessibility service can read everything on the screen, so this one is built
 
 ## Build from source
 
-Needs JDK 21 and the Android SDK. The voice is too big for git: `scripts/fetch-voice.sh` downloads it (350 MB) from the
-sherpa-onnx releases and checks its SHA-256 before the build packs it.
+Needs Linux (the scripts use GNU tools), JDK 21 and the Android SDK. The voice is too big for git:
+`scripts/fetch-voice.sh` downloads it (350 MB) from the sherpa-onnx releases and checks its SHA-256 before the build
+packs it.
 
 ```sh
 scripts/fetch-voice.sh
