@@ -41,11 +41,12 @@ fun runs(blocks: List<Block>, from: Int): List<IntRange> {
 }
 
 /**
- * Whether [b] goes on reading [a]: one holds the other or they share a holder (a paragraph and its links), or [b] starts
- * on [a]'s last line (a footnote mark).
+ * Whether [b] goes on reading [a]: one holds the other or they share a holder (a paragraph and its links), or [b] sits on
+ * [a]'s last line (a footnote mark). Overlapping lines, not just [b] starting higher: a column beside [a] starts higher.
  */
 private fun together(a: Block, b: Block) =
-    b.parent == a.parent || b.parent == a.grandparent || b.grandparent == a.parent || b.top < a.bottom
+    b.parent == a.parent || b.parent == a.grandparent || b.grandparent == a.parent ||
+        (b.top < a.bottom && a.top < b.bottom)
 
 enum class Language { SPANISH, ENGLISH }
 

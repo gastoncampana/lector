@@ -42,6 +42,14 @@ class ReadingTest {
     }
 
     @Test
+    fun runsKeepSideBySideColumnsApart() {
+        val left = Block("End of the left column.", 0, 800, 450, 900, parent = 1)
+        // Starts above where the left column ends, but not on its line.
+        val right = Block("Start of the right column.", 500, 100, 900, 200, parent = 2)
+        assertEquals(listOf(0..0, 1..1), runs(listOf(left, right), 0))
+    }
+
+    @Test
     fun languageTellsEnglishFromSpanish() {
         assertEquals(Language.ENGLISH, language("Just shipped the new version, check it out"))
         assertEquals(Language.ENGLISH, language("I can't believe this is real"))
