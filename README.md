@@ -8,7 +8,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/Android-13%2B-3a3a3a" alt="Android 13 or newer">
   <img src="https://img.shields.io/badge/permissions-none-3a3a3a" alt="No permissions">
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-3a3a3a" alt="MIT license"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPL--3.0-3a3a3a" alt="GPL-3.0 license"></a>
 </p>
 
 ## How it works
@@ -81,4 +81,4 @@ one from the releases page: uninstall that one first.
 
 ## License
 
-[MIT](LICENSE)
+Lector is free software under the [GNU GPL, version 3 or later](LICENSE).
