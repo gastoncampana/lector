@@ -84,7 +84,7 @@ object Speech {
     /**
      * Speaks each of [texts] with its voice, in order, at [speed], cutting off whatever was being spoken. [onStart] gets
      * each text's index as it begins to play; [onEnd] runs once after the last one, with true if the voice failed. Both
-     * run on the main thread, and neither after [stop] or the next [speak].
+     * run on the main thread, and neither after [stop] or the next [speak]. Returns the reading's id, for [stop].
      */
     fun speak(
         context: Context,
@@ -92,7 +92,7 @@ object Speech {
         speed: Float,
         onStart: (Int) -> Unit,
         onEnd: (Boolean) -> Unit,
-    ) {
+    ): Int {
         val id = ++reading
         val app = context.applicationContext
         // Bounded: on a fast phone a long text would otherwise pile up its audio in memory, sentence after sentence.
@@ -122,6 +122,7 @@ object Speech {
             }
         }
         player.execute { play(id, chunks, onStart, onEnd) }
+        return id
     }
 
     /** Queues [chunk], waiting while the queue is full; false once the reading [id] is over and nobody plays it. */
@@ -130,8 +131,9 @@ object Speech {
         return false
     }
 
-    fun stop() {
-        reading++
+    /** Stops the reading [id], if it is still the one going on; by default, whatever is. */
+    fun stop(id: Int = reading) {
+        if (reading == id) reading++
     }
 
     private fun model(context: Context): OfflineTts {

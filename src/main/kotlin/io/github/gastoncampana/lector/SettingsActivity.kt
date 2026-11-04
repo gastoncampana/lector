@@ -49,6 +49,9 @@ class SettingsActivity : ComponentActivity() {
     // Whether the shortcut is set: Android turns the service on exactly when a shortcut targets it.
     private var shortcut by mutableStateOf(false)
 
+    // The sample last played: leaving stops it, but not a reading the service started since (of this screen, say).
+    private var playing = 0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Speech.prepare(this)
@@ -71,13 +74,13 @@ class SettingsActivity : ComponentActivity() {
 
     override fun onStop() {
         super.onStop()
-        Speech.stop()
+        Speech.stop(playing)
     }
 
     /** Says the sample for [voice]'s language with it. */
     private fun sample(voice: Voice) {
         val text = getString(if (voice.language == Language.ENGLISH) R.string.sample_english else R.string.sample)
-        Speech.speak(this, listOf(text to voice), speed(), onStart = {}, onEnd = {})
+        playing = Speech.speak(this, listOf(text to voice), speed(), onStart = {}, onEnd = {})
     }
 
     @Composable
