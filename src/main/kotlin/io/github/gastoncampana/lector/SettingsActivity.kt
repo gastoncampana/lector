@@ -6,15 +6,19 @@ import android.os.Bundle
 import android.provider.Settings
 import android.view.accessibility.AccessibilityManager
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
@@ -26,6 +30,7 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
@@ -49,6 +54,9 @@ class SettingsActivity : ComponentActivity() {
     // Whether the shortcut is set: Android turns the service on exactly when a shortcut targets it.
     private var shortcut by mutableStateOf(false)
 
+    // Whether the licenses are shown instead of the settings.
+    private var licenses by mutableStateOf(false)
+
     // The sample last played: leaving stops it, but not a reading the service started since (of this screen, say).
     private var playing = 0
 
@@ -59,7 +67,7 @@ class SettingsActivity : ComponentActivity() {
             val dark = isSystemInDarkTheme()
             MaterialTheme(colorScheme = if (dark) dynamicDarkColorScheme(this) else dynamicLightColorScheme(this)) {
                 Surface(Modifier.fillMaxSize()) {
-                    Screen()
+                    if (licenses) Licenses() else Screen()
                 }
             }
         }
@@ -116,6 +124,41 @@ class SettingsActivity : ComponentActivity() {
                 valueRange = 0.5f..2f,
                 steps = 14,
             )
+            Text(
+                stringResource(R.string.free_software),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            TextButton(onClick = { licenses = true }) { Text(stringResource(R.string.licenses)) }
+        }
+    }
+
+    /**
+     * The license texts in `assets/licenses`, NOTICE.txt first: it says which of the others covers each component.
+     * Their hard line breaks are joined, except before a list item, so the paragraphs wrap to the phone's width.
+     */
+    @Composable
+    private fun Licenses() {
+        BackHandler { licenses = false }
+        val parts = remember {
+            assets.list("licenses").orEmpty().sortedBy { it != "NOTICE.txt" }.flatMap { name ->
+                val text = assets.open("licenses/$name").bufferedReader().use { it.readText() }
+                listOf(name to true) + text.split(Regex("\\n\\s*\\n")).filter { it.isNotBlank() }
+                    .map { it.trim().replace(Regex("\\s*\\n(?!\\s*- )\\s*"), " ") to false }
+            }
+        }
+        LazyColumn(
+            Modifier.safeDrawingPadding(),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            items(parts) { (text, title) ->
+                if (title) {
+                    Text(text, Modifier.padding(top = 16.dp), style = MaterialTheme.typography.titleMedium)
+                } else {
+                    Text(text, style = MaterialTheme.typography.bodySmall)
+                }
+            }
         }
     }
 

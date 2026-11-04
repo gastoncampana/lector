@@ -19,6 +19,8 @@ confirm with `apkanalyzer manifest permissions build/outputs/apk/release/lector-
   SHA-256, and the build packs it as assets. The install and release scripts run it; a build without it fails.
 - Unit tests: `./gradlew testDebugUnitTest`
 - Build a GitHub release APK: `scripts/release.sh` (tests, signature and no-INTERNET checks, SHA-256 for the notes).
+  It also runs `scripts/sources.sh`, which packs `lector-<version>-sources.tar`: the GPL source of sherpa-onnx's native
+  library (sherpa-onnx and every library its build pins, SHA-256 checked), to attach to the release next to the APK.
 
 Testing the shortcut on a phone over adb: `adb shell input keycombination -t 4000 KEYCODE_VOLUME_UP KEYCODE_VOLUME_DOWN`
 presses it, and `screencap` shows the result. Never `uiautomator dump` (or anything else that connects a UiAutomation)
@@ -62,7 +64,15 @@ build from source, and `scripts/release.sh` refuses to ship that build.
   notifications, and the app asks for no permissions.
 - `SettingsActivity.kt`: the app icon. A voice per language (tapping one plays a sample) and the speed; until the
   shortcut is on (Android enables the service exactly when a shortcut targets it), a card that opens Accessibility
-  settings.
+  settings. At the bottom, the GPL notice and **Licenses**, which shows `src/main/assets/licenses/` with `NOTICE.txt`
+  first.
+
+## Licenses
+
+The app is GPL-3.0-or-later. `src/main/assets/licenses/NOTICE.txt` lists every third-party component in the APK, down
+to what sherpa-onnx's native libraries link in (inventoried from its v1.13.8 cmake files and the `.so` strings), and
+says where to get the GPL source; the other files there hold the license texts. Updating sherpa-onnx, the voice or a
+library means updating them, versions and commits included.
 
 UI strings live in `src/main/res`: `values/strings.xml` is English (the default), `values-es/strings.xml` Spanish
 (rioplatense, voseo); new UI text needs both. Code comments are English.

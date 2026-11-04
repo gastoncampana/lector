@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Builds the APK for a GitHub release into build/, and prints its SHA-256 for the release notes. Refuses an APK that
-# is not signed with the release key or that can reach the network. Needs apksigner and apkanalyzer on the PATH.
+# Builds the APK for a GitHub release into build/, with the third-party sources it offers under the GPL, and prints
+# their SHA-256s for the release notes. Refuses an APK that is not signed with the release key or that can reach the
+# network. Needs apksigner and apkanalyzer on the PATH.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 cert=450bf20de5e88aeb78016e060cfa09b2b42fc269f9db9f10019e8ace7a31f380
@@ -17,4 +18,6 @@ if grep -Fx android.permission.INTERNET <<< "$permissions"; then
   exit 1
 fi
 cp "$apk" "build/lector-$version.apk"
-(cd build && sha256sum "lector-$version.apk")
+# The GPL source of the native libraries, attached to the release next to the APK.
+scripts/sources.sh "$version"
+(cd build && sha256sum "lector-$version.apk" "lector-$version-sources.tar")

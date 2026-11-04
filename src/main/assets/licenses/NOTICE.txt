@@ -1,0 +1,58 @@
+Lector, Copyright (C) 2026 gastoncampana: https://github.com/gastoncampana/lector
+
+Lector is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as
+published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+Lector is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License, in GPL-3.0.txt, for more
+details.
+
+Lector includes the third-party components below. Each line gives a component's license and copyright; the license
+texts follow this notice, and MIT.txt and BSD.txt hold each of their components' own notice.
+
+The voice:
+- Kokoro-82M v1.0, by hexgrad, as packaged by sherpa-onnx (the model and its voices): Apache-2.0.
+- espeak-ng data (pronunciation rules and dictionaries): GPL-3.0-or-later. Copyright (C) 2005 to 2015 Jonathan
+  Duddington, (C) 2013-2017 Reece H. Dunn, and other contributors.
+
+sherpa-onnx 1.13.8 for Android, the two native libraries that run the voice (libsherpa-onnx-jni.so and
+libonnxruntime.so):
+- sherpa-onnx 1.13.8: Apache-2.0. Copyright (c) 2022-2026 Xiaomi Corporation and contributors. It includes code from
+  Supertonic (MIT, Copyright (c) 2025 Supertone Inc.) and from CATT (Apache-2.0, Copyright (c) 2025 Abjad AI).
+- ONNX Runtime 1.28.2: MIT. Copyright (c) Microsoft Corporation. Its own components are listed in
+  onnxruntime-ThirdPartyNotices.txt and onnx-NOTICE.txt.
+- espeak-ng (csukuangfj fork, commit ed530aa): GPL-3.0-or-later. Copyright (C) 2005 to 2015 Jonathan Duddington,
+  (C) 2013-2017 Reece H. Dunn, and other contributors.
+- ucd-tools, in espeak-ng: GPL-3.0-or-later. Copyright (C) 2012-2018, 2021 Reece H. Dunn. Its tables come from the
+  Unicode Character Database: Unicode-DFS-2016, Copyright (C) 1991-2018 Unicode, Inc.
+- piper-phonemize (csukuangfj fork, commit f3ff95a): MIT. Copyright (c) 2023 Michael Hansen.
+- uni-algo 0.8.1, in piper-phonemize: The Unlicense.
+- kaldi-native-fbank 1.22.3: Apache-2.0. Copyright (c) 2022 Xiaomi Corporation and the Kaldi authors.
+- KISS FFT (commit febd4ca): BSD-3-Clause. Copyright (c) 2003-2010 Mark Borgerding.
+- kaldi-decoder 0.3.0: Apache-2.0. Copyright Xiaomi Corporation, Microsoft Corporation and the Kaldi authors.
+- kaldifst 1.8.0: Apache-2.0. Its authors, or their employers where a file says so, own their contributions. It
+  includes libc++'s basic_filebuf: MIT, Copyright (c) 2009-2014 the libc++ contributors.
+- OpenFst (csukuangfj fork, v1.8.5-2026-07-09): Apache-2.0. Copyright 2005-2026 Google LLC.
+- Eigen 5.0.1, and the Eigen in ONNX Runtime (commit 1d8b82b): MPL-2.0. Its source code is at
+  https://gitlab.com/libeigen/eigen/-/tree/5.0.1 and
+  https://github.com/eigen-mirror/eigen/tree/1d8b82b0740839c0de7f1242a3585e3390ff5f33
+- simple-sentencepiece 0.7: Apache-2.0. Copyright 2024 Wei Kang. It includes darts-clone (BSD-2-Clause, Copyright (c)
+  2008-2014 Susumu Yata) and ThreadPool (Zlib, Copyright (c) 2012 Jakob Progsch, Vaclav Zeman).
+- nlohmann/json 3.12.0: MIT. Copyright (c) 2013-2025 Niels Lohmann.
+- hclust-cpp / fastcluster: BSD-2-Clause. Copyright (c) 2011 Daniel Muellner, (c) 2018 Christoph Dalitz.
+- LLVM libc++, built into both libraries: Apache-2.0 WITH LLVM-exception.
+
+The app's own libraries:
+- AndroidX, Jetpack Compose and Material 3: Apache-2.0. Copyright The Android Open Source Project.
+- Kotlin standard library and kotlinx.coroutines: Apache-2.0. Copyright JetBrains s.r.o. and Kotlin contributors.
+
+Source code. Under the GPL, you can get the complete source code of Lector and of the libraries that espeak-ng is built
+into. Each Lector release, at https://github.com/gastoncampana/lector/releases, carries lector-<version>-sources.tar
+next to its APK: sherpa-onnx 1.13.8 and every library its build pins, as downloaded by that build. The same code
+upstream:
+- Lector: https://github.com/gastoncampana/lector
+- sherpa-onnx 1.13.8, with its Android build script (build-android-arm64-v8a.sh) and the exact version of every
+  library above, pinned in its cmake directory: https://github.com/k2-fsa/sherpa-onnx/tree/v1.13.8
+- espeak-ng: https://github.com/csukuangfj/espeak-ng/tree/ed530aa113046142eb5115cf2fc9157854d0ffe1
+- ONNX Runtime 1.28.2, which libsherpa-onnx-jni.so loads: https://github.com/microsoft/onnxruntime/tree/v1.28.2, built
+  for Android by https://github.com/csukuangfj/onnxruntime-libs (release v1.28.2)

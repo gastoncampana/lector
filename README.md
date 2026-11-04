@@ -100,3 +100,8 @@ Lector is free software under the [GNU GPL, version 3 or later](LICENSE). Its AP
 | [sherpa-onnx](https://github.com/k2-fsa/sherpa-onnx) | Runs the model | Apache-2.0 |
 | [ONNX Runtime](https://github.com/microsoft/onnxruntime) | Inside sherpa-onnx | MIT |
 | [espeak-ng](https://github.com/espeak-ng/espeak-ng) | Turns text into the model's phonemes, inside sherpa-onnx | GPL-3.0 |
+
+sherpa-onnx's native libraries hold a few more small libraries. The app lists every component, with its copyright and
+license texts, under **Licenses** on its screen; the same list is in
+[`NOTICE.txt`](src/main/assets/licenses/NOTICE.txt). The source code the GPL covers in those libraries comes with each
+release, as `lector-<version>-sources.tar`.

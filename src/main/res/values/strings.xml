@@ -11,6 +11,8 @@
     <string name="shortcut_title">Turn on the shortcut</string>
     <string name="shortcut_text">Lector opens with an accessibility shortcut, such as holding both volume keys. In Accessibility settings, open Lector and turn on its shortcut.</string>
     <string name="shortcut_button">Open Accessibility settings</string>
+    <string name="free_software">Lector is free software: you can use, study, share and change it under the GNU GPL, version 3 or later. It comes with no warranty.</string>
+    <string name="licenses">Licenses</string>
     <!-- The samples are in their voices' language, whatever the app's. -->
     <string name="sample_english" translatable="false">Hi, I\'m Lector. Tap any text on the screen and I\'ll read it from there to the end.</string>
     <string name="sample" translatable="false">Hola, soy Lector. Tocá cualquier texto de la pantalla y lo leo desde ahí hasta el final.</string>

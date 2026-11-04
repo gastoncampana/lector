@@ -10,4 +10,6 @@
     <string name="shortcut_title">Activá el acceso directo</string>
     <string name="shortcut_text">Lector se abre con un acceso directo de accesibilidad, por ejemplo mantener presionadas las dos teclas de volumen. En los ajustes de Accesibilidad, abrí Lector y activá su acceso directo.</string>
     <string name="shortcut_button">Abrir ajustes de Accesibilidad</string>
+    <string name="free_software">Lector es software libre: podés usarlo, estudiarlo, compartirlo y cambiarlo bajo la GNU GPL, versión 3 o posterior. Viene sin ninguna garantía.</string>
+    <string name="licenses">Licencias</string>
 </resources>
