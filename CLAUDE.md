@@ -51,7 +51,10 @@ build from source, and `scripts/release.sh` refuses to ship that build.
   for its subtree. It skips controls (buttons, text fields such as a browser's address bar, and in Chrome, whose roles
   come in `extras` as `AccessibilityNodeInfo.chromeRole`, buttons and footnote marks) and marks link text unless a
   heading holds it, for `readable`. `ReaderView` is a `TYPE_ACCESSIBILITY_OVERLAY` window over the whole screen: outlines until a tap
-  picks a block, then fills the run being read; the end of the reading closes it. Chrome stops building a page's
+  picks a block, then fills the run being read; the end of the reading closes it. It keeps the screen on: Android
+  binds accessibility services as foreground only while the screen is on, so with it off the service's audio is muted
+  (`muted ... source:opControlAudio` in `dumpsys audio`) and its threads drop to the `restricted` cpuset, the little
+  cores. Chrome stops building a page's
   tree while nothing reads it, so `toggle` looks again 500 ms after opening and takes the longer list.
   Picked in the chooser Android shows when several services share the shortcut, `onClicked` runs while the chooser is
   still the active window, so `toggle` looks again once, 500 ms later, when it finds no text or an `android` window.

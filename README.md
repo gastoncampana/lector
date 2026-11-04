@@ -69,8 +69,10 @@ An accessibility service can read everything on the screen, so this one is built
   and there is nothing to read.
 - It reads text only. Images and buttons that only have an icon stay silent.
 - It reads English and Spanish. Other languages come out with one of those accents.
-- The voice takes a lot of processing. On a recent phone it speaks faster than it is generated; on a mid-range one it
-  may pause a little between sentences, and it takes about 600 MB of memory.
+- The voice takes a lot of processing. A recent phone generates it faster than it speaks; a mid-range one may pause a
+  little between sentences. It takes about 600 MB of memory.
+- The screen stays on while Lector reads: Android mutes it once the screen turns off, so locking the phone stops the
+  reading.
 - Password fields are skipped.
 
 ## Build from source

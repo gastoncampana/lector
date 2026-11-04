@@ -188,10 +188,14 @@ private fun collect(
     for (i in 0 until node.childCount) collect(node.getChild(i), into, node.hashCode(), parent, here)
 }
 
-/** Full screen, over the cutout and the system bars, so the view's coordinates line up with the screen's. */
+/**
+ * Full screen, over the cutout and the system bars, so the view's coordinates line up with the screen's. It keeps the
+ * screen on: an accessibility service counts as in the foreground only while the screen is, so once it goes off
+ * Android mutes the app's audio and leaves it the slow cores.
+ */
 private fun overlayLayout() = LayoutParams(
     LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
-    LayoutParams.FLAG_NOT_FOCUSABLE or LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+    LayoutParams.FLAG_NOT_FOCUSABLE or LayoutParams.FLAG_LAYOUT_IN_SCREEN or LayoutParams.FLAG_KEEP_SCREEN_ON,
     PixelFormat.TRANSLUCENT,
 ).apply {
     layoutInDisplayCutoutMode = LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
