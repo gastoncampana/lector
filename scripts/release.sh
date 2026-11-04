@@ -5,6 +5,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 cert=450bf20de5e88aeb78016e060cfa09b2b42fc269f9db9f10019e8ace7a31f380
 version=$(grep -oP 'versionName = "\K[^"]+' build.gradle.kts)
+scripts/fetch-voice.sh
 ./gradlew -q clean testDebugUnitTest assembleRelease
 apk=build/outputs/apk/release/lector-release.apk
 apksigner verify --print-certs "$apk" | grep -Fx "V2 Signer: certificate SHA-256 digest: $cert" > /dev/null ||

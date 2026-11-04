@@ -8,22 +8,22 @@
         android:name="android.permission.INTERNET"
         tools:node="remove" />
 
-    <!-- TextToSpeech finds the phone's voice engines through this intent; without it none is visible. -->
-    <queries>
-        <intent>
-            <action android:name="android.intent.action.TTS_SERVICE" />
-        </intent>
-    </queries>
+    <!-- AndroidX Core guards its receivers with this on Android 12 and older; minSdk is 33, so it is never used. -->
+    <permission
+        android:name="${applicationId}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+        tools:node="remove" />
+    <uses-permission
+        android:name="${applicationId}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+        tools:node="remove" />
 
     <application
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name">
         <activity
-            android:name=".SetupActivity"
-            android:excludeFromRecents="true"
+            android:name=".SettingsActivity"
             android:exported="true"
-            android:theme="@android:style/Theme.NoDisplay">
+            android:theme="@style/Theme.Lector">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

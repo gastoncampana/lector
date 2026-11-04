@@ -1,7 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name" translatable="false">Lector</string>
-    <string name="service_description">Reads the screen aloud. Press its shortcut (for example, holding both volume keys), tap the text to start from, and it reads from there to the end, highlighting each part as it goes. Tap again, or press the shortcut, to stop.\n\nIt speaks with your phone\'s text-to-speech voice, and it has no network access: nothing on your screen leaves the phone.</string>
+    <string name="service_description">Reads the screen aloud. Press its shortcut (for example, holding both volume keys), tap the text to start from, and it reads from there to the end, highlighting each part as it goes. Tap again, or press the shortcut, to stop.\n\nIts voice is generated on the phone, and it has no network access: nothing on your screen leaves the phone.</string>
     <string name="no_text">No text to read on this screen</string>
-    <string name="no_voice">The text-to-speech voice isn\'t ready yet</string>
+    <string name="voice_failed">The voice failed to load</string>
+    <string name="voices_hint">Lector tells English from Spanish on its own. Tap a voice to hear it.</string>
+    <string name="voice_spanish">Spanish voice</string>
+    <string name="voice_english">English voice</string>
+    <string name="speed">Speed: %.1f×</string>
+    <string name="shortcut_title">Turn on the shortcut</string>
+    <string name="shortcut_text">Lector opens with an accessibility shortcut, such as holding both volume keys. In Accessibility settings, open Lector and turn on its shortcut.</string>
+    <string name="shortcut_button">Open Accessibility settings</string>
+    <!-- The samples are in their voices' language, whatever the app's. -->
+    <string name="sample_english" translatable="false">Hi, I\'m Lector. Tap any text on the screen and I\'ll read it from there to the end.</string>
+    <string name="sample" translatable="false">Hola, soy Lector. Tocá cualquier texto de la pantalla y lo leo desde ahí hasta el final.</string>
 </resources>

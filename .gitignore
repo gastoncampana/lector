@@ -4,3 +4,5 @@ build/
 local.properties
 .idea/
 *.iml
+/voice/
+/voice.tar.bz2

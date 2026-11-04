@@ -18,21 +18,23 @@
 3. Tap the text to start from. Lector reads from there to the end of the screen and highlights each part as it reads.
 4. Tap anywhere, or press the shortcut again, to stop.
 
-It speaks with the phone's text-to-speech voice, so it uses the voice, speed and pitch picked in Android's settings
-(Settings → System → Languages → Text-to-speech output; the names vary by phone).
+It speaks with its own voice, [Kokoro](https://huggingface.co/hexgrad/Kokoro-82M), generated on the phone: no
+text-to-speech app needed. It tells English from Spanish by itself and reads each with its own voice; open Lector to
+pick a voice for each language and the speed.
 
-Available in English and Spanish.
+It reads the text, not the controls around it: buttons, text fields, a web page's tabs and footnote marks are skipped.
+
+The app is available in English and Spanish.
 
 ## Install
 
-1. Download `lector-<version>.apk` from the latest release.
+1. Download `lector-<version>.apk` from the latest release. It is big, about 390 MB, because it carries the voice.
 2. Open it on the phone and allow installs from that app when Android asks. Play Protect may warn you, because the app
    does not come from Google Play.
-3. Open Lector. It takes you to the Accessibility settings: turn Lector on there.
+3. Open Lector and tap **Open Accessibility settings**. Find Lector there, turn on its shortcut and pick how to
+   trigger it: both volume keys, the accessibility button or the gesture.
    If Android greys the switch out as a restricted setting, open Lector's app info, then ⋮ → Allow restricted
    settings, and try again.
-4. In Lector's accessibility page, turn on its shortcut and pick how to trigger it: both volume keys, the
-   accessibility button or the gesture.
 
 Android gives each shortcut to one service at a time: if another service shares it, such as Select to Speak, Android
 asks which one to use every time. Take the shortcut off the other service to skip that question.
@@ -57,8 +59,7 @@ An accessibility service can read everything on the screen, so this one is built
   (apkanalyzer comes with the Android SDK command-line tools): it lists nothing.
 - **It reads the screen only when you press its shortcut**, and keeps nothing: the text lives in memory until the
   reading ends. The service asks Android for no accessibility events at all.
-- **The text goes to your text-to-speech engine**, which is a separate app with its own privacy terms. Pick an engine
-  and voice that run on the device if you want the whole path to stay offline.
+- **The text never leaves the app.** The voice runs inside it, and so does telling English from Spanish.
 
 ## Limits
 
@@ -66,13 +67,18 @@ An accessibility service can read everything on the screen, so this one is built
 - Apps that draw their own text, such as some games and apps built with Flutter, give accessibility services no text,
   and there is nothing to read.
 - It reads text only. Images and buttons that only have an icon stay silent.
+- It reads English and Spanish. Other languages come out with one of those accents.
+- The voice takes a lot of processing. On a recent phone it speaks faster than it is generated; on a mid-range one it
+  may pause a little between sentences, and it takes about 600 MB of memory.
 - Password fields are skipped.
 
 ## Build from source
 
-Needs JDK 21 and the Android SDK.
+Needs JDK 21 and the Android SDK. The voice is too big for git: `scripts/fetch-voice.sh` downloads it (350 MB) from the
+sherpa-onnx releases and checks its SHA-256 before the build packs it.
 
 ```sh
+scripts/fetch-voice.sh
 ./gradlew testDebugUnitTest assembleRelease
 ```
 
@@ -81,4 +87,11 @@ one from the releases page: uninstall that one first.
 
 ## License
 
-Lector is free software under the [GNU GPL, version 3 or later](LICENSE).
+Lector is free software under the [GNU GPL, version 3 or later](LICENSE). Its APK also carries:
+
+| Component | What for | License |
+|---|---|---|
+| [Kokoro-82M](https://huggingface.co/hexgrad/Kokoro-82M) v1.0 | The voice model and its voices | Apache-2.0 |
+| [sherpa-onnx](https://github.com/k2-fsa/sherpa-onnx) | Runs the model | Apache-2.0 |
+| [ONNX Runtime](https://github.com/microsoft/onnxruntime) | Inside sherpa-onnx | MIT |
+| [espeak-ng](https://github.com/espeak-ng/espeak-ng) | Turns text into the model's phonemes, inside sherpa-onnx | GPL-3.0 |

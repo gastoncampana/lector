@@ -1,7 +1,19 @@
 package io.github.gastoncampana.lector
 
-/** A piece of on-screen text and where it sits, in screen pixels. */
-data class Block(val text: String, val left: Int, val top: Int, val right: Int, val bottom: Int) {
+/**
+ * A piece of on-screen text and where it sits, in screen pixels. [parent] and [grandparent] identify the nodes that hold
+ * it: a paragraph holds its plain text directly, and its links' text through the link. [link] is text inside a link.
+ */
+data class Block(
+    val text: String,
+    val left: Int,
+    val top: Int,
+    val right: Int,
+    val bottom: Int,
+    val parent: Int = 0,
+    val grandparent: Int = 0,
+    val link: Boolean = false,
+) {
     fun contains(x: Int, y: Int) = x in left until right && y in top until bottom
     val area get() = (right - left).toLong() * (bottom - top)
 }
@@ -10,15 +22,65 @@ data class Block(val text: String, val left: Int, val top: Int, val right: Int, 
 fun blockAt(blocks: List<Block>, x: Int, y: Int): Int =
     blocks.indices.filter { blocks[it].contains(x, y) }.minByOrNull { blocks[it].area } ?: -1
 
-/** [text] cut into pieces of at most [max] characters, each at the last space before the limit when there is one. */
-fun pieces(text: String, max: Int): List<String> {
-    val out = mutableListOf<String>()
-    var rest = text
-    while (rest.length > max) {
-        val cut = rest.lastIndexOf(' ', max).takeIf { it > 0 } ?: max
-        out += rest.substring(0, cut)
-        rest = rest.substring(cut).trimStart()
+/**
+ * The blocks from [from] to the end, grouped into runs the voice reads in one go: the pieces of a paragraph split by its
+ * links. Read one by one, they would make the voice pause at every link.
+ */
+fun runs(blocks: List<Block>, from: Int): List<IntRange> {
+    if (from !in blocks.indices) return emptyList()
+    val out = mutableListOf<IntRange>()
+    var start = from
+    for (i in from + 1 until blocks.size) {
+        if (!together(blocks[i - 1], blocks[i])) {
+            out += start until i
+            start = i
+        }
     }
-    if (rest.isNotEmpty()) out += rest
+    out += start until blocks.size
     return out
 }
+
+/**
+ * Whether [b] goes on reading [a]: one holds the other or they share a holder (a paragraph and its links), or [b] starts
+ * on [a]'s last line (a footnote mark).
+ */
+private fun together(a: Block, b: Block) =
+    b.parent == a.parent || b.parent == a.grandparent || b.grandparent == a.parent || b.top < a.bottom
+
+enum class Language { SPANISH, ENGLISH }
+
+// Frequent words of one language that the other doesn't use, so "a", "no" or "me" count for neither.
+private val englishWords = setOf(
+    "the", "and", "is", "are", "was", "were", "you", "your", "of", "to", "in", "it", "its", "that", "this", "for",
+    "with", "on", "at", "from", "by", "be", "been", "have", "has", "had", "not", "but", "or", "if", "so", "what",
+    "who", "how", "why", "when", "i", "i'm", "we", "they", "he", "she", "my", "our", "their", "will", "would", "can",
+    "just", "about", "all", "more", "out", "up", "do", "does", "don't", "get", "like", "now", "there", "an", "which",
+)
+private val spanishWords = setOf(
+    "el", "la", "los", "las", "de", "del", "al", "que", "y", "en", "un", "una", "unos", "es", "son", "por", "con",
+    "para", "se", "lo", "le", "les", "como", "pero", "su", "sus", "mi", "tu", "ya", "muy", "hay", "esto", "esta",
+    "este", "eso", "ese", "fue", "ser", "nos", "cuando", "porque", "todo", "sin", "sobre", "entre", "yo", "vos",
+    "si", "dónde", "qué", "más", "está", "también", "así", "o",
+)
+
+/**
+ * Whether [text] reads as English or Spanish, or null when nothing tells (a name, a number, a handle). Counts each
+ * language's frequent words; a letter only Spanish uses (ñ, an accent, ¿ or ¡) counts for Spanish too.
+ */
+fun language(text: String): Language? {
+    val words = text.lowercase().split(Regex("[^\\p{L}']+")).filter { it.isNotEmpty() }
+    val english = words.count { it in englishWords }
+    val spanish = words.count { it in spanishWords } + text.count { it in "ñÑáéíóúÁÉÍÓÚ¿¡" }
+    return when {
+        english > spanish -> Language.ENGLISH
+        spanish > english -> Language.SPANISH
+        else -> null
+    }
+}
+
+/**
+ * [blocks] without the runs made only of links, such as a page's tabs or an icon's hidden label: what is left is the
+ * text people read, links within it included.
+ */
+fun readable(blocks: List<Block>): List<Block> =
+    runs(blocks, 0).filter { run -> run.any { !blocks[it].link } }.flatMap { run -> run.map { blocks[it] } }

@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="service_description">Lee la pantalla en voz alta. Usá su acceso directo (por ejemplo, mantener presionadas ambas teclas de volumen), tocá el texto desde donde querés empezar y lo lee hasta el final, resaltando cada parte. Tocá de nuevo, o usá el acceso directo, para parar.\n\nHabla con la voz de texto a voz del teléfono y no tiene acceso a la red: nada de lo que hay en tu pantalla sale del teléfono.</string>
+    <string name="service_description">Lee la pantalla en voz alta. Usá su acceso directo (por ejemplo, mantener presionadas ambas teclas de volumen), tocá el texto desde donde querés empezar y lo lee hasta el final, resaltando cada parte. Tocá de nuevo, o usá el acceso directo, para parar.\n\nSu voz se genera en el teléfono y no tiene acceso a la red: nada de lo que hay en tu pantalla sale del teléfono.</string>
     <string name="no_text">No hay texto para leer en esta pantalla</string>
-    <string name="no_voice">La voz de texto a voz todavía no está lista</string>
+    <string name="voice_failed">No se pudo cargar la voz</string>
+    <string name="voices_hint">Lector distingue solo el inglés del español. Tocá una voz para escucharla.</string>
+    <string name="voice_spanish">Voz en español</string>
+    <string name="voice_english">Voz en inglés</string>
+    <string name="speed">Velocidad: %.1f×</string>
+    <string name="shortcut_title">Activá el acceso directo</string>
+    <string name="shortcut_text">Lector se abre con un acceso directo de accesibilidad, por ejemplo mantener presionadas las dos teclas de volumen. En los ajustes de Accesibilidad, abrí Lector y activá su acceso directo.</string>
+    <string name="shortcut_button">Abrir ajustes de Accesibilidad</string>
 </resources>
