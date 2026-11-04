@@ -95,23 +95,19 @@ object Speech {
     ) {
         val id = ++reading
         val app = context.applicationContext
-        val chunks = LinkedBlockingQueue<Chunk>()
+        // Bounded: on a fast phone a long text would otherwise pile up its audio in memory, sentence after sentence.
+        val chunks = LinkedBlockingQueue<Chunk>(16)
         generator.execute {
             try {
                 val tts = model(app)
-                chunks.put(Ready(tts.sampleRate()))
+                send(id, chunks, Ready(tts.sampleRate()))
                 // An object, not a lambda: the native side calls invoke([F)Ljava/lang/Integer;, which a Kotlin lambda
                 // doesn't have. Returning 0 makes it stop after the sentence it is on.
                 val callback = object : (FloatArray) -> Int {
-                    override fun invoke(samples: FloatArray): Int {
-                        if (reading != id) return 0
-                        chunks.put(Audio(samples.copyOf()))
-                        return 1
-                    }
+                    override fun invoke(samples: FloatArray) = if (send(id, chunks, Audio(samples.copyOf()))) 1 else 0
                 }
                 for ((i, text) in texts.withIndex()) {
-                    if (reading != id) return@execute
-                    chunks.put(Begin(i))
+                    if (!send(id, chunks, Begin(i))) return@execute
                     val (words, voice) = text
                     val config = GenerationConfig(
                         speed = speed,
@@ -120,12 +116,18 @@ object Speech {
                     )
                     tts.generateWithConfigAndCallback(words, config, callback)
                 }
-                chunks.put(End)
+                send(id, chunks, End)
             } catch (e: Exception) {
-                chunks.put(Failed)
+                send(id, chunks, Failed)
             }
         }
         player.execute { play(id, chunks, onStart, onEnd) }
+    }
+
+    /** Queues [chunk], waiting while the queue is full; false once the reading [id] is over and nobody plays it. */
+    private fun send(id: Int, chunks: LinkedBlockingQueue<Chunk>, chunk: Chunk): Boolean {
+        while (reading == id) if (chunks.offer(chunk, 100, TimeUnit.MILLISECONDS)) return true
+        return false
     }
 
     fun stop() {
@@ -179,7 +181,8 @@ object Speech {
                 when (val chunk = chunks.poll(100, TimeUnit.MILLISECONDS) ?: continue) {
                     is Ready -> {
                         rate = chunk.rate
-                        track = track(rate).apply { play() }
+                        track = track(rate)
+                        track.play()
                     }
                     is Begin -> post(id) { onStart(chunk.index) }
                     is Audio -> {
@@ -188,8 +191,9 @@ object Speech {
                         var at = 0
                         while (at < chunk.samples.size && reading == id) {
                             val n = minOf(step, chunk.samples.size - at)
-                            track!!.write(chunk.samples, at, n, AudioTrack.WRITE_BLOCKING)
-                            at += n
+                            val wrote = track!!.write(chunk.samples, at, n, AudioTrack.WRITE_BLOCKING)
+                            check(wrote > 0) { "AudioTrack.write returned $wrote" }
+                            at += wrote
                         }
                         written += at
                     }
@@ -208,6 +212,9 @@ object Speech {
                     }
                 }
             }
+        } catch (e: Exception) {
+            // The audio output failed: no track, or the audio server went away mid-sentence.
+            post(id) { onEnd(true) }
         } finally {
             track?.run {
                 pause()
