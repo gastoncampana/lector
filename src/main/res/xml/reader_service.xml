@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- No events: the service only reads the screen when its shortcut is pressed. flagRequestAccessibilityButton makes
-     the shortcut (volume keys, button or gesture) call AccessibilityButtonCallback.onClicked instead of turning the
-     service off. isAccessibilityTool also lets it read views marked accessibilityDataSensitive. -->
+<!-- No events: the service only reads the screen when its shortcut is pressed. The shortcut (volume keys, button or
+     gesture) turns the service on and off, and the service turns itself off when a reading ends: no
+     flagRequestAccessibilityButton, which would keep it on all the time. isAccessibilityTool also lets it read views
+     marked accessibilityDataSensitive. -->
 <accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
     android:accessibilityFeedbackType="feedbackSpoken"
-    android:accessibilityFlags="flagRequestAccessibilityButton"
     android:canRetrieveWindowContent="true"
     android:description="@string/service_description"
     android:isAccessibilityTool="true" />

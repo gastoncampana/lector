@@ -27,7 +27,7 @@ presses it, and `screencap` shows the result. Never `uiautomator dump` (or anyth
 in between: it suspends the accessibility services, Android then drops Lector from the shortcut setting, and the
 next press turns TalkBack on, Android's default target when the setting is empty. Never force-stop the app either
 (`am start -S`, `am force-stop`): Android turns off a force-stopped app's accessibility services and empties the same
-setting. After `adb install -r` the service comes back on its own a few seconds later.
+setting. The service is off between readings, so there is nothing to wait for after `adb install -r`.
 
 Release builds are signed with the key in `~/.config/lector/` (`release.p12`, `password`), which never enters the repo;
 losing it means users must uninstall to update. Without it they fall back to this machine's debug key, so anyone can
@@ -47,25 +47,29 @@ build from source, and `scripts/release.sh` refuses to ship that build.
   loads from the assets in place, but espeak-ng reads files, so its data is copied to `filesDir` once per app update.
   A missing asset makes sherpa-onnx exit the process. The callback must be an `object`, not a lambda: the native side
   calls `invoke([F)Ljava/lang/Integer;`, which `proguard-rules.pro` keeps.
-- `ReaderService.kt`: `ReaderService`, the accessibility service. `flagRequestAccessibilityButton` in
-  `res/xml/reader_service.xml` makes its shortcut call `onClicked` (`toggle`) instead of turning the service off. It
-  asks for no events: `collect` walks `rootInActiveWindow` only when the shortcut is pressed, and a node with text
-  stands for its subtree. It skips controls (buttons, text fields such as a browser's address bar, and in Chrome, whose
-  roles come in `extras` as `AccessibilityNodeInfo.chromeRole`, buttons and footnote marks: links in a superscript, and
-  its page numbers and brackets) and marks link text unless a heading holds it, for `readable`. `ReaderView` is a
+- `ReaderService.kt`: `ReaderService`, the accessibility service. Its shortcut turns it on and off: `onServiceConnected`
+  opens the overlay, and `finish` turns the service off with `disableSelf` when the reading ends or the overlay is
+  closed. So it runs only while it reads, and apps that refuse to run beside an accessibility service (banking apps)
+  find none between readings. `res/xml/reader_service.xml` must not ask for `flagRequestAccessibilityButton`: with it,
+  Android keeps the service on whenever a shortcut targets it. It asks for no events: `collect` walks
+  `rootInActiveWindow` only when the shortcut is pressed, and a node with text stands for its subtree. It skips controls
+  (buttons, text fields such as a browser's address bar, and in Chrome, whose roles come in `extras` as
+  `AccessibilityNodeInfo.chromeRole`, buttons and footnote marks: links in a superscript, and its page numbers and
+  brackets) and marks link text unless a heading holds it, for `readable`. `ReaderView` is a
   `TYPE_ACCESSIBILITY_OVERLAY` window over the whole screen: outlines until a tap picks a block, then fills the run
   being read; the end of the reading closes it. It keeps the screen on: Android binds accessibility services as
   foreground only while the screen is on, so with it off the service's audio is muted (`muted ... source:opControlAudio`
-  in `dumpsys audio`) and its threads drop to the `restricted` cpuset, the little cores. Chrome stops building a page's
-  tree while nothing reads it, so `toggle` looks again 500 ms after opening and takes the longer list. Picked in the
-  chooser Android shows when several services share the shortcut, `onClicked` runs while the chooser is still the active
-  window, so `toggle` looks again once, 500 ms later, when it finds no text or an `android` window. Messages go through
-  `notice` (an accessibility overlay), never a Toast: Android drops a background app's toasts while it may not post
-  notifications, and the app asks for no permissions.
-- `SettingsActivity.kt`: the app icon. A voice per language (tapping one plays a sample) and the speed; until the
-  shortcut is on (Android enables the service exactly when a shortcut targets it), a card that opens Accessibility
-  settings. At the bottom, the GPL notice and **Licenses**, which shows `src/main/assets/licenses/` with `NOTICE.txt`
-  first.
+  in `dumpsys audio`) and its threads drop to the `restricted` cpuset, the little cores. `open` shows the overlay at
+  once, its edge pulsing, and `look` finds the text: Chrome builds a page's tree only while a service is on, so just
+  after the shortcut turns Lector on (about 1.5 s on a Moto g) it finds none, or only part of it. `look` tries every
+  250 ms for 3 s while it finds no text or an `android` window (the chooser Android shows when several services share
+  the shortcut, still active as the service starts), then once more 500 ms later, keeping the longer list. Messages go
+  through `notice` (an accessibility overlay), never a Toast: Android drops a background app's toasts while it may not
+  post notifications, and the app asks for no permissions.
+- `SettingsActivity.kt`: the app icon. A voice per language (tapping one plays a sample) and the speed; until a
+  shortcut targets the service (read from the secure settings that hold each shortcut's targets), a card that opens
+  Accessibility settings. At the bottom, the GPL notice and **Licenses**, which shows `src/main/assets/licenses/` with
+  `NOTICE.txt` first.
 
 ## Licenses
 

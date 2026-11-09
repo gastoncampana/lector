@@ -14,7 +14,7 @@
 ## How it works
 
 1. Press Lector's accessibility shortcut, for example by holding both volume keys.
-2. The screen dims and every piece of text on it gets an outline.
+2. The screen dims, its edge pulsing while Lector finds the text, and every piece of text gets an outline.
 3. Tap the text to start from. Lector reads from there to the end of the screen and highlights each part as it reads.
 4. Tap anywhere, or press the shortcut again, to stop.
 
@@ -34,7 +34,8 @@ The app is available in English and Spanish.
 2. Open it on the phone and allow installs from that app when Android asks. Play Protect may warn you, because the app
    does not come from Google Play.
 3. Open Lector and tap **Open Accessibility settings**. Find Lector there, turn on its shortcut and pick how to
-   trigger it: both volume keys, the accessibility button or the gesture.
+   trigger it: both volume keys, the accessibility button or the gesture. Leave Lector itself off: the shortcut turns
+   it on when you want it to read.
    If Android greys the switch out as a restricted setting, open Lector's app info, then ⋮ → Allow restricted
    settings, and try again.
 
@@ -61,6 +62,9 @@ An accessibility service can read everything on the screen, so this one is built
   (apkanalyzer comes with the Android SDK command-line tools): it lists nothing.
 - **It reads the screen only when you press its shortcut**, and keeps nothing: the text lives in memory until the
   reading ends. The service asks Android for no accessibility events at all.
+- **It is on only while it reads.** The shortcut turns the accessibility service on, and Lector turns it off when the
+  reading ends. The rest of the time no app sees it running, so apps that refuse to open beside an accessibility
+  service, as some banking apps do, are not blocked by it.
 - **The text never leaves the app.** The voice runs inside it, and so does telling English from Spanish.
 
 ## Limits

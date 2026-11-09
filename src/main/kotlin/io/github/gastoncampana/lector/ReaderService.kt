@@ -1,7 +1,7 @@
 package io.github.gastoncampana.lector
 
-import android.accessibilityservice.AccessibilityButtonController
 import android.accessibilityservice.AccessibilityService
+import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
@@ -12,6 +12,7 @@ import android.graphics.Rect
 import android.graphics.drawable.GradientDrawable
 import android.os.Handler
 import android.os.Looper
+import android.os.SystemClock
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
@@ -21,49 +22,54 @@ import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import android.widget.TextView
 import java.util.Locale
+import kotlin.math.abs
 
 /**
- * Reads the screen aloud. Its accessibility shortcut (both volume keys, the button or the gesture) collects the text
- * of the app in front and covers it with a [ReaderView]: a tap on a block reads from there to the end, filling the
- * blocks being read. Any other tap, a tap while reading, or the shortcut again stops and closes.
- * It speaks with [Speech], in the voice picked in [SettingsActivity] for each run's language.
+ * Reads the screen aloud. Its accessibility shortcut (both volume keys, the button or the gesture) turns the service
+ * on, which covers the app in front with a [ReaderView] and outlines its text: a tap on a block reads from there to the
+ * end, filling the blocks being read. Any other tap, a tap while reading, or the end of the reading closes it and turns
+ * the service off again; the shortcut pressed meanwhile turns it off too. So it runs only while it reads, and apps that
+ * refuse to run beside an accessibility service, as banking apps do, find none the rest of the time. It speaks with
+ * [Speech], in the voice picked in [SettingsActivity] for each run's language.
  */
 class ReaderService : AccessibilityService() {
     private val main = Handler(Looper.getMainLooper())
     private var overlay: ReaderView? = null
 
     override fun onServiceConnected() {
-        accessibilityButtonController.registerAccessibilityButtonCallback(
-            object : AccessibilityButtonController.AccessibilityButtonCallback() {
-                override fun onClicked(controller: AccessibilityButtonController) = toggle()
-            },
-        )
         Speech.prepare(this)
+        open()
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) = Unit
 
-    override fun onInterrupt() = close()
+    override fun onInterrupt() = finish()
 
     override fun onDestroy() {
         close()
         super.onDestroy()
     }
 
-    private fun toggle(again: Boolean = false) {
-        if (overlay != null) return close()
-        val root = rootInActiveWindow
-        val blocks = readable(mutableListOf<Block>().also { collect(root, it) })
-        // Picked in the chooser Android shows when several services share the shortcut, this runs while the chooser
-        // (an "android" window) is still the active one: look again once it has closed.
-        if (!again && (blocks.isEmpty() || root?.packageName == "android")) {
-            main.postDelayed({ toggle(again = true) }, 500)
-            return
-        }
-        if (blocks.isEmpty()) return notice(R.string.no_text)
-        val view = ReaderView(this, blocks, onPick = ::read, onClose = ::close)
+    /** Covers the screen at once, so the shortcut is seen to work, and [look]s for the text to outline. */
+    private fun open() {
+        val view = ReaderView(this, emptyList(), onPick = ::read, onClose = { finish() })
         getSystemService(WindowManager::class.java).addView(view, overlayLayout())
         overlay = view
+        look(view)
+    }
+
+    private fun look(view: ReaderView, tries: Int = 0) {
+        val root = rootInActiveWindow
+        val blocks = readable(mutableListOf<Block>().also { collect(root, it) })
+        // Just turned on, the service may not see the window yet, and apps that build their tree only while a service
+        // is on (Chrome) need a moment; picked in the chooser Android shows when several services share the shortcut,
+        // it starts while the chooser (an "android" window) is the active one. Keep looking for up to 3 seconds.
+        if (tries < OPEN_TRIES && (blocks.isEmpty() || root?.packageName == "android")) {
+            main.postDelayed({ look(view, tries + 1) }, OPEN_MS)
+            return
+        }
+        if (blocks.isEmpty()) return finish(R.string.no_text)
+        view.blocks = blocks
         // Chrome stops building a page's tree while nothing reads it and starts again when asked, so the first look
         // may find only its toolbar: look again shortly, unless a block was already picked.
         main.postDelayed({
@@ -91,10 +97,7 @@ class ReaderService : AccessibilityService() {
             texts,
             speed(),
             onStart = { overlay?.reading = runs[it] },
-            onEnd = { failed ->
-                close()
-                if (failed) notice(R.string.voice_failed)
-            },
+            onEnd = { failed -> finish(if (failed) R.string.voice_failed else null) },
         )
     }
 
@@ -103,6 +106,14 @@ class ReaderService : AccessibilityService() {
         main.removeCallbacksAndMessages(null)
         overlay?.let { getSystemService(WindowManager::class.java).removeView(it) }
         overlay = null
+    }
+
+    /** Closes and turns the service off, after showing [message] if there is one: its window goes with the service. */
+    private fun finish(message: Int? = null) {
+        close()
+        if (message == null) return disableSelf()
+        notice(message)
+        main.postDelayed(::disableSelf, NOTICE_MS)
     }
 
     /**
@@ -135,9 +146,14 @@ class ReaderService : AccessibilityService() {
                 y = (96 * dp).toInt()
             },
         )
-        view.postDelayed({ if (view.isAttachedToWindow) windows.removeView(view) }, 2500)
+        view.postDelayed({ if (view.isAttachedToWindow) windows.removeView(view) }, NOTICE_MS)
     }
 }
+
+private const val NOTICE_MS = 2500L
+private const val OPEN_MS = 250L
+private const val OPEN_TRIES = 12
+private const val PULSE_MS = 1000L
 
 /** Where a node sits, as far as reading goes: what holds it decides whether its text is read. */
 private enum class Place { TEXT, HEADING, LINK, SUPERSCRIPT, CONTROL }
@@ -231,9 +247,20 @@ private class ReaderView(
         color = 0xFF4A90E2.toInt()
     }
     private val fill = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = 0x66FFC400 }
+    private val edge = Paint(outline).apply { strokeWidth = 8 * dp }
 
     override fun onDraw(canvas: Canvas) {
         canvas.drawColor(0x33000000)
+        if (blocks.isEmpty()) {
+            // Still looking for the text: the screen's edge pulses until the outlines show, or stays lit without
+            // animations.
+            val animate = ValueAnimator.areAnimatorsEnabled()
+            val phase = SystemClock.uptimeMillis() % PULSE_MS / PULSE_MS.toFloat()
+            edge.alpha = if (animate) (255 * (0.25f + 0.75f * abs(1 - 2 * phase))).toInt() else 255
+            canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), edge)
+            if (animate) postInvalidateOnAnimation()
+            return
+        }
         // Blocks are in screen coordinates; the window may still start below the top (e.g. a cutout the system keeps).
         getLocationOnScreen(origin)
         canvas.translate(-origin[0].toFloat(), -origin[1].toFloat())

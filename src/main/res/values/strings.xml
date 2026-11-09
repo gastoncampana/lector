@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name" translatable="false">Lector</string>
-    <string name="service_description">Reads the screen aloud. Press its shortcut (for example, holding both volume keys), tap the text to start from, and it reads from there to the end, highlighting each part as it goes. Tap again, or press the shortcut, to stop.\n\nIts voice is generated on the phone, and it has no network access: nothing on your screen leaves the phone.</string>
+    <string name="service_description">Reads the screen aloud. Press its shortcut (for example, holding both volume keys), tap the text to start from, and it reads from there to the end, highlighting each part as it goes. Tap again, or press the shortcut, to stop.\n\nThe shortcut turns it on and it turns itself off when it is done, so it runs only while it reads.\n\nIts voice is generated on the phone, and it has no network access: nothing on your screen leaves the phone.</string>
     <string name="no_text">No text to read on this screen</string>
     <string name="voice_failed">The voice failed to load</string>
     <string name="voices_hint">Lector tells English from Spanish on its own. Tap a voice to hear it.</string>

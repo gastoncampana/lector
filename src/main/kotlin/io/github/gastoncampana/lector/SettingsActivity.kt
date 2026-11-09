@@ -1,10 +1,8 @@
 package io.github.gastoncampana.lector
 
-import android.accessibilityservice.AccessibilityServiceInfo
 import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
-import android.view.accessibility.AccessibilityManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
@@ -46,12 +44,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 
+// Where Android keeps each accessibility shortcut's targets: the volume keys, the button and the gesture.
+private val shortcuts = listOf(
+    "accessibility_shortcut_target_service", "accessibility_button_targets", "accessibility_gesture_targets",
+)
+
 /**
  * The app's icon: picks a voice for each language and the speed, letting each be heard, and points to Accessibility
  * settings until the shortcut is on.
  */
 class SettingsActivity : ComponentActivity() {
-    // Whether the shortcut is set: Android turns the service on exactly when a shortcut targets it.
+    // Whether a shortcut targets the service, which is off between readings, so being on says nothing.
     private var shortcut by mutableStateOf(false)
 
     // Whether the licenses are shown instead of the settings.
@@ -75,9 +78,9 @@ class SettingsActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        shortcut = getSystemService(AccessibilityManager::class.java)
-            .getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_ALL_MASK)
-            .any { it.resolveInfo.serviceInfo.packageName == packageName }
+        shortcut = shortcuts.any { key ->
+            runCatching { Settings.Secure.getString(contentResolver, key) }.getOrNull().orEmpty().contains(packageName)
+        }
     }
 
     override fun onStop() {
