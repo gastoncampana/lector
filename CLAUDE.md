@@ -38,13 +38,16 @@ build from source, and `scripts/release.sh` refuses to ship that build.
 - `Reading.kt`: pure logic, unit-tested in `src/test`. `Block` (a piece of on-screen text, its bounds in screen pixels
   and the nodes holding it), `blockAt` (the smallest block under a touch), `runs` (blocks read in one go: the pieces
   of a paragraph that its links split, which read one by one make the voice pause at every link), `readable` (drops
-  runs made only of links: menus, tabs, link lists) and `language` (English or Spanish, from frequent words and
-  Spanish-only letters; on the phone, nothing leaves it).
+  runs made only of links: menus, tabs, link lists), `clauses` and `language` (English or Spanish, from
+  frequent words and Spanish-only letters; on the phone, nothing leaves it).
 - `Speech.kt`: the voice. `Voice` lists the Kokoro speakers offered, three per language; each language has its pick
   and the speed is shared, all in preferences. `Speech` speaks: one thread generates audio with sherpa-onnx while
   another plays it on an `AudioTrack`, so the next sentence is ready before this one ends (the system TextToSpeech
-  keeps only half a second ahead). Each text names its espeak-ng language per generation (`extra["lang"]`). The model
-  loads from the assets in place, but espeak-ng reads files, so its data is copied to `filesDir` once per app update.
+  keeps only half a second ahead). sherpa-onnx hands over audio a sentence at a time, each only once it is all made,
+  and on a phone it generates about as fast as it speaks, so it gets a clause at a time (`clauses`): with whole
+  sentences, a long one meant a long silence before it (12 s on a Moto g). Each text names its
+  espeak-ng language per generation (`extra["lang"]`). The model loads from the assets in place, but espeak-ng reads
+  files, so its data is copied to `filesDir` once per app update.
   A missing asset makes sherpa-onnx exit the process. The callback must be an `object`, not a lambda: the native side
   calls `invoke([F)Ljava/lang/Integer;`, which `proguard-rules.pro` keeps.
 - `ReaderService.kt`: `ReaderService`, the accessibility service. Its shortcut turns it on and off: `onServiceConnected`

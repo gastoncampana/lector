@@ -48,6 +48,27 @@ private fun together(a: Block, b: Block) =
     b.parent == a.parent || b.parent == a.grandparent || b.grandparent == a.parent ||
         (b.top < a.bottom && a.top < b.bottom)
 
+/**
+ * [text] in clauses, cut after every comma, semicolon, colon or sentence end; a piece under three words goes with the
+ * next one, or the last. The voice makes a whole piece before any of it sounds: short pieces start sooner, and the next
+ * one is made while this one plays.
+ */
+fun clauses(text: String): List<String> {
+    val out = mutableListOf<String>()
+    var start = 0
+    for (cut in Regex("[,;:.!?]\\s").findAll(text).map { it.range.first + 1 }) {
+        val piece = text.substring(start, cut).trim()
+        if (words(piece) < 3) continue
+        out += piece
+        start = cut
+    }
+    val rest = text.substring(start).trim()
+    if (out.isNotEmpty() && words(rest) < 3) out[out.lastIndex] += " $rest" else if (rest.isNotEmpty()) out += rest
+    return out
+}
+
+private fun words(text: String) = text.split(Regex("\\s+")).count { it.isNotEmpty() }
+
 enum class Language { SPANISH, ENGLISH }
 
 // Frequent words of one language that the other doesn't use, so "a", "no" or "me" count for neither.

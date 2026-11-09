@@ -16,6 +16,25 @@ class ReadingTest {
     }
 
     @Test
+    fun clausesCutAtPunctuationKeepingPiecesOfThreeWordsOrMore() {
+        assertEquals(
+            listOf(
+                "La yerba mate,",
+                "yerba de los jesuitas o yerba del Paraguay,",
+                "es una especie.",
+                "Crece en Misiones.",
+            ),
+            clauses("La yerba mate, yerba de los jesuitas o yerba del Paraguay, es una especie. Crece en Misiones."),
+        )
+        // A short piece goes with the next one, a short ending with the last; a decimal comma is no cut.
+        assertEquals(
+            listOf("Sí, claro que sí.", "Mide 1,5 metros de alto, o casi."),
+            clauses("Sí, claro que sí. Mide 1,5 metros de alto, o casi."),
+        )
+        assertEquals(listOf("Hola, soy Lector"), clauses("Hola, soy Lector"))
+    }
+
+    @Test
     fun blockBoundsExcludeTheirRightAndBottomEdges() {
         val block = Block("x", 10, 10, 20, 20)
         assertTrue(block.contains(10, 10))

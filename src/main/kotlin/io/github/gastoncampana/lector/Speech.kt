@@ -114,7 +114,12 @@ object Speech {
                         sid = voice.speaker,
                         extra = mapOf("lang" to voice.language.espeak),
                     )
-                    tts.generateWithConfigAndCallback(words, config, callback)
+                    // A clause at a time: the model makes a whole sentence before any of it sounds, and generates
+                    // about as fast as it speaks, so a long sentence would leave a long silence before it.
+                    for (piece in clauses(words)) {
+                        if (reading != id) return@execute
+                        tts.generateWithConfigAndCallback(piece, config, callback)
+                    }
                 }
                 send(id, chunks, End)
             } catch (e: Exception) {
