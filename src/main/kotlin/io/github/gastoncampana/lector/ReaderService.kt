@@ -27,10 +27,10 @@ import kotlin.math.abs
 /**
  * Reads the screen aloud. Its accessibility shortcut (both volume keys, the button or the gesture) turns the service
  * on, which covers the app in front with a [ReaderView] and outlines its text: a tap on a block reads from there to the
- * end, filling the blocks being read. Any other tap, a tap while reading, or the end of the reading closes it and turns
- * the service off again; the shortcut pressed meanwhile turns it off too. So it runs only while it reads, and apps that
- * refuse to run beside an accessibility service, as banking apps do, find none the rest of the time. It speaks with
- * [Speech], in the voice picked in [SettingsActivity] for each run's language.
+ * end, filling the blocks being read, while touches go through to the screen below. A tap off the blocks or the end of
+ * the reading closes it and turns the service off again; the shortcut pressed meanwhile turns it off too. So it runs
+ * only while it reads, and apps that refuse to run beside an accessibility service, as banking apps do, find none the
+ * rest of the time. It speaks with [Speech], in the voice picked in [SettingsActivity] for each run's language.
  */
 class ReaderService : AccessibilityService() {
     private val main = Handler(Looper.getMainLooper())
@@ -91,7 +91,15 @@ class ReaderService : AccessibilityService() {
             language = language(text) ?: language
             text to voice(language)
         }
-        overlay?.reading = runs.first()
+        overlay?.let { view ->
+            view.reading = runs.first()
+            // From here touches go through, to the app and to the volume panel the overlay would otherwise cover: the
+            // shortcut stops the reading.
+            getSystemService(WindowManager::class.java).updateViewLayout(
+                view,
+                overlayLayout().apply { flags = flags or LayoutParams.FLAG_NOT_TOUCHABLE },
+            )
+        }
         Speech.speak(
             this,
             texts,
@@ -250,7 +258,7 @@ private class ReaderView(
     private val edge = Paint(outline).apply { strokeWidth = 8 * dp }
 
     override fun onDraw(canvas: Canvas) {
-        canvas.drawColor(0x33000000)
+        if (reading.isEmpty()) canvas.drawColor(0x33000000)
         if (blocks.isEmpty()) {
             // Still looking for the text: the screen's edge pulses until the outlines show, or stays lit without
             // animations.
@@ -276,7 +284,7 @@ private class ReaderView(
     override fun onTouchEvent(event: MotionEvent): Boolean {
         if (event.action == MotionEvent.ACTION_UP) {
             performClick()
-            val picked = if (reading.isEmpty()) blockAt(blocks, event.rawX.toInt(), event.rawY.toInt()) else -1
+            val picked = blockAt(blocks, event.rawX.toInt(), event.rawY.toInt())
             if (picked < 0) onClose() else onPick(blocks, picked)
         }
         return true

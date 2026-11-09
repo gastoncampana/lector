@@ -16,7 +16,7 @@
 1. Press Lector's accessibility shortcut, for example by holding both volume keys.
 2. The screen dims, its edge pulsing while Lector finds the text, and every piece of text gets an outline.
 3. Tap the text to start from. Lector reads from there to the end of the screen and highlights each part as it reads.
-4. Tap anywhere, or press the shortcut again, to stop.
+4. Press the shortcut again to stop. While it reads, the screen works as usual: you can change the volume or scroll.
 
 It speaks with its own voice, [Kokoro](https://huggingface.co/hexgrad/Kokoro-82M), generated on the phone: no
 text-to-speech app needed. It tells English from Spanish by itself and reads each with its own voice; open Lector to

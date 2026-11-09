@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="service_description">Lee la pantalla en voz alta. Usá su acceso directo (por ejemplo, mantener presionadas ambas teclas de volumen), tocá el texto desde donde querés empezar y lo lee hasta el final, resaltando cada parte. Tocá de nuevo, o usá el acceso directo, para parar.\n\nEl acceso directo lo enciende y se apaga solo al terminar, así que solo funciona mientras lee.\n\nSu voz se genera en el teléfono y no tiene acceso a la red: nada de lo que hay en tu pantalla sale del teléfono.</string>
+    <string name="service_description">Lee la pantalla en voz alta. Usá su acceso directo (por ejemplo, mantener presionadas ambas teclas de volumen), tocá el texto desde donde querés empezar y lo lee hasta el final, resaltando cada parte. Usá el acceso directo de nuevo para parar; mientras lee, la pantalla funciona como siempre.\n\nEl acceso directo lo enciende y se apaga solo al terminar, así que solo funciona mientras lee.\n\nSu voz se genera en el teléfono y no tiene acceso a la red: nada de lo que hay en tu pantalla sale del teléfono.</string>
     <string name="no_text">No hay texto para leer en esta pantalla</string>
     <string name="voice_failed">No se pudo cargar la voz</string>
     <string name="voices_hint">Lector distingue solo el inglés del español. Tocá una voz para escucharla.</string>

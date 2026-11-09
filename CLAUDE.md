@@ -56,8 +56,9 @@ build from source, and `scripts/release.sh` refuses to ship that build.
   (buttons, text fields such as a browser's address bar, and in Chrome, whose roles come in `extras` as
   `AccessibilityNodeInfo.chromeRole`, buttons and footnote marks: links in a superscript, and its page numbers and
   brackets) and marks link text unless a heading holds it, for `readable`. `ReaderView` is a
-  `TYPE_ACCESSIBILITY_OVERLAY` window over the whole screen: outlines until a tap picks a block, then fills the run
-  being read; the end of the reading closes it. It keeps the screen on: Android binds accessibility services as
+  `TYPE_ACCESSIBILITY_OVERLAY` window over the whole screen: dims and outlines until a tap picks a block, then fills
+  the run being read and lets touches through (`FLAG_NOT_TOUCHABLE`), since it covers the volume panel too; the
+  shortcut or the end of the reading closes it. It keeps the screen on: Android binds accessibility services as
   foreground only while the screen is on, so with it off the service's audio is muted (`muted ... source:opControlAudio`
   in `dumpsys audio`) and its threads drop to the `restricted` cpuset, the little cores. `open` shows the overlay at
   once, its edge pulsing, and `look` finds the text: Chrome builds a page's tree only while a service is on, so just
